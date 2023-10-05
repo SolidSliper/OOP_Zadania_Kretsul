@@ -73,12 +73,17 @@ void zoznam_produktov(PRODUKT* a, int n)
         cout << " " << a[i].id << " " << a[i].nazov << " " << a[i].vyrobca << " " << a[i].kolkost << " " << a[i].cena << std::endl;
 }
 
-int zoznam_podla_nazvu(PRODUKT* prod, string chce, int n)
+int zoznam_podla_nazvu(PRODUKT* prod, string chce, int n, int*& p_id)
 {
     int prod_je = 0;
+    for (int i = 0; i < n; i++)
+    {
+        p_id[i] = -1;
+    }
     for (int i = 0; i < n; i++) {
         if (prod[i].nazov == chce) {
             cout << " " << prod[i].id << " " << prod[i].nazov << " " << prod[i].vyrobca << " " << prod[i].kolkost << " " << prod[i].cena << std::endl;
+            p_id[i] = i+1;
             prod_je++;
         }
     }
@@ -89,14 +94,20 @@ int zoznam_podla_nazvu(PRODUKT* prod, string chce, int n)
     return 1; // Vratit 1, ak sa nasli produkty so zadanym nazvom
 }
 
-int zoznam_podla_vyrobce(PRODUKT* prod, string chce, int n)
+int zoznam_podla_vyrobce(PRODUKT* prod, string chce, int n, int*& p_id)
 {
     int vyrob_je = 0;
     for (int i = 0; i < n; i++)
     {
+        p_id[i] = -1;
+    }
+    for (int i = 0; i < n; i++)
+    {
         if (prod[i].vyrobca == chce)
         {
-            std::cout << " " << prod[i].id << " " << prod[i].nazov << " " << prod[i].vyrobca << " " << prod[i].kolkost << " " << prod[i].cena << std::endl;
+            if (i == i - 1) continue;
+            cout << " " << prod[i].id << " " << prod[i].nazov << " " << prod[i].vyrobca << " " << prod[i].kolkost << " " << prod[i].cena << std::endl;
+            p_id[i] = i+1;
             vyrob_je++;
         }
     }
@@ -120,7 +131,7 @@ void nakup_produktu(ZAKAZNIK*& zakaz, PRODUKT*& prod, int vyb_id) {
 
 int main()
 {
-    int i, n, a = 0, vyber_id, prod_je;
+    int i, n, a = 0;
     float suma = 0;
     string chce_prod;
     int* np = &n;
@@ -137,6 +148,13 @@ int main()
     }
     prod >> n; // Citanie poctu produktov zo suboru
     prod.close();
+
+    int* pole_vyber_id = new int[n]; //dynamicke pole na zapis vybranich id zakaznika
+    if (pole_vyber_id == nullptr)
+    {
+        cout << "Nepodarilo vytvorit dynamicke pole!" << endl;
+        return 0;
+    }
 
     // Citanie zoznamu produktov zo suboru do pola produktov
     produkt = nacit(f);
@@ -158,6 +176,7 @@ int main()
 
     // Hlavny cyklus sluzieb zakaznikom
     while (a != 3) {
+        int vyber_id, prod_je, over_id = 0;
         cout << "Vyhladajte produkt podla: 1 - nazvu, 2 - vyrobce, 3 - ukoncit nakup -> ";
         cin >> a;
         switch (a)
@@ -165,15 +184,30 @@ int main()
         case 1:
             cout << "Aky produkt chcete vybrat?(napiste nazov) -> ";
             cin >> vyber;
-            prod_je = zoznam_podla_nazvu(produkt, vyber, n);
+            prod_je = zoznam_podla_nazvu(produkt, vyber, n, pole_vyber_id);
             if (prod_je == 0)
             {
                 cout << "Produkt nebol najdeny!" << endl;
                 break;
             }
 
-            cout << "Aky produkt chcete vybrat?(vyberte id) -> ";
-            cin >> vyber_id;
+            while (over_id == 0) {
+                cout << "Aky produkt chcete vybrat?(vyberte id) -> ";
+                cin >> vyber_id;
+                if (vyber_id == -1)
+                {
+                    cout << "Nespravny id!" << endl;
+                    continue;
+                }
+                for (i = 0; i < n; i++)
+                {
+                    if (vyber_id == pole_vyber_id[i])
+                        over_id = 1;
+                }
+                if (over_id == 0)
+                    cout << "Nespravny id!" << endl;
+            }
+
             cout << " " << produkt[vyber_id - 1].id << " " << produkt[vyber_id - 1].nazov << " " << produkt[vyber_id - 1].vyrobca << " " << produkt[vyber_id - 1].kolkost << " " << produkt[vyber_id - 1].cena << endl;
             if (produkt[vyber_id - 1].kolkost == 0)
             {
@@ -206,15 +240,30 @@ int main()
         case 2:
             cout << "Akeho vyrobcu chcete vybrat? -> ";
             cin >> vyber;
-            prod_je = zoznam_podla_vyrobce(produkt, vyber, n);
+            prod_je = zoznam_podla_vyrobce(produkt, vyber, n, pole_vyber_id);
             if (prod_je == 0)
             {
                 cout << "Vyrobca nebol najdeny!" << endl;
                 break;
             }
 
-            cout << "Aky produkt chcete vybrat?(vyberte id) -> ";
-            cin >> vyber_id;
+            while (over_id == 0) {
+                cout << "Aky produkt chcete vybrat?(vyberte id) -> ";
+                cin >> vyber_id;
+                if (vyber_id == -1)
+                {
+                    cout << "Nespravny id!" << endl;
+                    continue;
+                }
+                for (i = 0; i < n; i++)
+                {
+                    if (vyber_id == pole_vyber_id[i])
+                        over_id = 1;
+                }
+                if (over_id == 0)
+                    cout << "Nespravny id!" << endl;
+            }
+
             cout << " " << produkt[vyber_id - 1].id << " " << produkt[vyber_id - 1].nazov << " " << produkt[vyber_id - 1].vyrobca << " " << produkt[vyber_id - 1].kolkost << " " << produkt[vyber_id - 1].cena << endl;
             if (produkt[vyber_id - 1].kolkost == 0)
             {
@@ -252,7 +301,7 @@ int main()
     for (i = 0; i < n; i++) {
         if (zakaz->kupene[i].id != -1) {
             cout << zakaz->kupene[i].id << " " << zakaz->kupene[i].nazov << " " << zakaz->kupene[i].vyrobca << " " << zakaz->kupene[i].kolkost << " " << zakaz->kupene[i].cena << endl;
-            suma += zakaz->kupene[i].cena;
+            suma += zakaz->kupene[i].cena*zakaz->kupene[i].kolkost;
         }
     }
     cout << "Na sumu: " << suma << " eur" << endl;
@@ -274,6 +323,7 @@ int main()
     }
     file.close();
 
+    delete[] pole_vyber_id;
     delete[] zakaz;
     delete[] produkt;
     return 0;
