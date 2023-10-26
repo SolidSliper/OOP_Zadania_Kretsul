@@ -19,6 +19,8 @@ public:
     double Cena() { return cena; }
     void SetID(int di) { id = di; }
     void SetKolkost(int k) { kolkost = k; }
+    void MinusKolkost() { kolkost--; }
+    void PlusKolkost() { kolkost++; }
     void SetNazov(string n) { nazov = n; }
     void SetVyrobca(string v) { vyrobca = v; }
     void SetCena(double c) { cena = c; }
@@ -77,7 +79,7 @@ void Zakaznik::SetKupene(int vyb_id, Produkt* prod)
     kupene[vyb_id - 1].SetNazov(prod[vyb_id - 1].Nazov());
     kupene[vyb_id - 1].SetVyrobca(prod[vyb_id - 1].Vyrobca());
     kupene[vyb_id - 1].SetCena(prod[vyb_id - 1].Cena());
-    kupene[vyb_id - 1].SetKolkost(kupene[vyb_id - 1].Kolkost()+1);
+    kupene[vyb_id - 1].PlusKolkost();
 }
 
 class Eshop
@@ -182,7 +184,7 @@ void Eshop::vypisProdID(int i)
 
 void Eshop::zmena_poctu_prod(int vyb_id)
 {
-    prod[vyb_id - 1].SetKolkost(prod[vyb_id - 1].Kolkost()-1); // Znizenie poctu zakupenych vyrobkov o 1
+    prod[vyb_id - 1].MinusKolkost(); // Znizenie poctu zakupenych vyrobkov o 1
 }
 
 int main()
@@ -224,6 +226,7 @@ int main()
             if (prod_je == nullptr)
             {
                 cout << "Produkt nebol najdeny!" << endl;
+                delete[] prod_je;
                 break;
             }
             while (over_id == 0) {
@@ -246,11 +249,13 @@ int main()
             if (shop.Prod()[vyber_id - 1].Kolkost() == 0)
             {
                 cout << "Dany produkt uz nie je na sklade!" << endl;
+                delete[] prod_je;
                 break;
             }
             if (shop.Prod()[vyber_id - 1].Cena() > zakaz.Roz())
             {
                 cout << "Nemate dost penazi!" << endl;
+                delete[] prod_je;
                 break;
             }
 
@@ -281,6 +286,7 @@ int main()
             if (prod_je == nullptr)
             {
                 cout << "Produkt nebol najdeny!" << endl;
+                delete[] prod_je;
                 break;
             }
             while (over_id == 0) {
@@ -304,11 +310,13 @@ int main()
             if (shop.Prod()[vyber_id - 1].Kolkost() == 0)
             {
                 cout << "Dany produkt uz nie je na sklade!" << endl;
+                delete[] prod_je;
                 break;
             }
             if (shop.Prod()[vyber_id - 1].Cena() > zakaz.Roz())
             {
                 cout << "Nemate dost penazi!" << endl;
+                delete[] prod_je;
                 break;
             }
 
